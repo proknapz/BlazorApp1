@@ -16,7 +16,7 @@ public class ApplicationDbContext : DbContext
     //public DbSet<StudentRecord> StudentRecords { get; set; }
     //public DbSet<AttendanceRecord> AttendanceRecords { get; set; }
     //public DbSet<Class> Classes { get; set; }
-    //public DbSet<Instructor> Instructors { get; set; }
+    public DbSet<Instructor> Instructors { get; set; }
     //public DbSet<QuizResponse> Attendances { get; set; }
     //public DbSet<QuizBank> QuizBanks { get; set; }
     //public DbSet<QuizQuestion> QuizQuestions { get; set; }
