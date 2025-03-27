@@ -11,6 +11,6 @@ public class ApplicationDbContext : DbContext
         optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
     }
     // Define DbSets for your tables (entities)
-    public DbSet<User> Users { get; set; }
+    public DbSet<Student> Students { get; set; }
     // Add more DbSet properties as needed
 }
