@@ -6,5 +6,5 @@ public class Instructor
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string Email { get; set; }
-    public string Password { get; set; } // Note: In a real-world scenario, you'd want to hash this
+    public string Username { get; set; } // Note: In a real-world scenario, you'd want to hash this
 }
