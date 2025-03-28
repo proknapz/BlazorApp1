@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-//Vishal Koundinya VRK200000
+
 public class InstructorService
 {
     private readonly ApplicationDbContext _context;
