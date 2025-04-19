@@ -77,11 +77,21 @@ else
 }
 
 @code {
-    private List<Instructor> instructors = new();
+    private List<Instructor> instructors = new();  // Initialize to an empty list
 
     protected override async Task OnInitializedAsync()
     {
-        instructors = await DbContext.Instructors.ToListAsync();
+        // Safely load data and handle possible issues
+        try
+        {
+            instructors = await DbContext.Instructors.ToListAsync() ?? new List<Instructor>(); // If null, initialize to an empty list
+        }
+        catch (Exception ex)
+        {
+            // Log or handle the exception as needed
+            Console.WriteLine($"Error loading instructors: {ex.Message}");
+            instructors = new List<Instructor>(); // Fall back to an empty list if there's an error
+        }
     }
 }
 *@
