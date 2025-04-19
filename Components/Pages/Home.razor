@@ -1,11 +1,10 @@
 ﻿@page "/"
-@inject ApplicationDbContext DbContext
-@using Microsoft.EntityFrameworkCore
+@inject HttpClient Http
+@inject NavigationManager Navigation
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
-
 <p>Welcome to your new app.</p>
 
 <form action="/Quiz" method="get">
@@ -19,9 +18,32 @@
 </form>
 
 <!-- Link to the teacher page -->
-<p><a href="/Teacher">Go to Teacher Page</a></p>
 
+
+<!-- Display the IP address -->
+<p>Your Public IP Address: @ipAddress</p>
+
+@code {
+    private string ipAddress = "Loading...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Make an API call to an external service to get the public IP address
+        try
+        {
+            ipAddress = await Http.GetStringAsync("https://api.ipify.org");
+        }
+        catch
+        {
+            ipAddress = "Unable to fetch IP";
+        }
+    }
+}
+
+
+@*
 <h3>Instructor List</h3>
+
 
 @if (instructors != null && instructors.Any())
 {
@@ -62,4 +84,4 @@ else
         instructors = await DbContext.Instructors.ToListAsync();
     }
 }
-
+*@
