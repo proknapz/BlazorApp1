@@ -1,0 +1,49 @@
+﻿@page "/login"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject ApplicationDbContext Db
+@using Microsoft.EntityFrameworkCore
+
+<h3>Login</h3>
+
+<div class="mb-3">
+    <label for="utdId" class="form-label">UTD ID</label>
+    <input @bind="loginModel.UtdId" class="form-control" />
+</div>
+<div class="mb-3">
+    <label for="password" class="form-label">Password</label>
+    <input @bind="loginModel.Password" type="password" class="form-control" />
+</div>
+
+<button class="btn btn-primary" @onclick="HandleLogin">Login</button>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p class="text-danger">@errorMessage</p>
+}
+
+@code {
+    private LoginModel loginModel = new();
+    private string errorMessage;
+
+    private async Task HandleLogin()
+    {
+        var user = await Db.Students.FirstOrDefaultAsync(s =>
+            s.UtdId == loginModel.UtdId && s.Password == loginModel.Password);
+
+        if (user is not null)
+        {
+            Navigation.NavigateTo("/quiz");
+        }
+        else
+        {
+            errorMessage = "Invalid UTD ID or password.";
+        }
+    }
+
+    public class LoginModel
+    {
+        public string UtdId { get; set; }
+        public string Password { get; set; }
+    }
+}

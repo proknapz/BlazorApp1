@@ -1,0 +1,57 @@
+﻿@page "/StudentList"
+@inject ApplicationDbContext DbContext
+@using Microsoft.EntityFrameworkCore
+
+<h3>Student List</h3>
+
+@if (students != null && students.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Student ID</th>
+                <th>UTD ID</th>
+                <th>Net ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Password</th>  <!-- Added Password column -->
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var student in students)
+            {
+                <tr>
+                    <td>@student.StudentId</td>
+                    <td>@student.UtdId</td>
+                    <td>@student.NetId</td>
+                    <td>@student.FirstName</td>
+                    <td>@student.LastName</td>
+                    <td>@student.Password</td>  <!-- Display the Password -->
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No students available.</p>
+}
+
+@code {
+    private List<Student> students = new();  // Initialize to an empty list
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Safely load data and handle possible issues
+        try
+        {
+            students = await DbContext.Students.ToListAsync() ?? new List<Student>(); // If null, initialize to an empty list
+        }
+        catch (Exception ex)
+        {
+            // Log or handle the exception as needed
+            Console.WriteLine($"Error loading students: {ex.Message}");
+            students = new List<Student>(); // Fall back to an empty list if there's an error
+        }
+    }
+}

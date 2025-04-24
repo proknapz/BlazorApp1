@@ -1,15 +1,27 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
+[Table("student")] // Match exact MySQL table name
 public class Student
 {
-    [Key] // Marks this property as the primary key
-    public int Id { get; set; } // Primary Key, non-nullable by default in EF Core
 
-    [Required] // Ensures UtdId cannot be null
-    public int UtdId { get; set; } // Non-nullable UTD ID
+    public int StudentId { get; set; }
 
-    [Required] // Ensures Name cannot be null
-    [StringLength(200)] // Maximum length of 200 characters for Name
-    public string Name { get; set; } // Non-nullable Name
+
+    public string UtdId { get; set; }
+
+
+    public string NetId { get; set; }
+
+
+    public string LastName { get; set; }
+
+
+    public string FirstName { get; set; }
+
+
+    public string Password { get; set; }
 }
+
+
