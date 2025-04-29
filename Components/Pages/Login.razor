@@ -1,7 +1,9 @@
-﻿@page "/login"
-@rendermode InteractiveServer
+﻿@page "/"
 @inject NavigationManager Navigation
+@rendermode InteractiveServer
+
 @inject ApplicationDbContext Db
+@inject UserSessionService UserSession
 @using Microsoft.EntityFrameworkCore
 
 <h3>Login</h3>
@@ -33,7 +35,8 @@
 
         if (user is not null)
         {
-            Navigation.NavigateTo("/quiz");
+            UserSession.LoggedInStudent = user;
+            Navigation.NavigateTo("/home", true); // full reload to reset layout state
         }
         else
         {

@@ -1,75 +1,36 @@
-﻿@page "/"
+﻿@page "/home"
+@rendermode InteractiveServer
 @inject ApplicationDbContext DbContext
+@inject UserSessionService UserSession
+@inject NavigationManager Navigation
 @using Microsoft.EntityFrameworkCore
 
 <PageTitle>Home</PageTitle>
 
-<h1>Welcome, student!</h1>
-
-<p>Please enter your UTD ID and the quiz password.</p>
-
-<form action="/Quiz" method="get">
-    <label for="utdId">UTD ID:</label>
-    <input type="text" id="utdId" name="utdId" maxlength="10" required>
-    <br>
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required>
-    <br>
-    <button type="submit">Submit</button>
-</form>
-
-<!-- Link to the teacher page -->
-<p><a href="/Teacher">Go to Teacher Page</a></p>
-
-<h3>Instructor List</h3>
-
-@if (instructors != null && instructors.Any())
+@if (UserSession.LoggedInStudent is not null)
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Instructor ID</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Email</th>
-                <th>Username</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var instructor in instructors)
-            {
-                <tr>
-                    <td>@instructor.InstructorId</td>
-                    <td>@instructor.FirstName</td>
-                    <td>@instructor.LastName</td>
-                    <td>@instructor.Email</td>
-                    <td>@instructor.Username</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <h1>Welcome, @UserSession.LoggedInStudent.FirstName!</h1>
 }
 else
 {
-    <p>No instructors available.</p>
+    <h1>Redirecting...</h1> <!-- Optional, user won't see this -->
 }
+
+<button class="btn btn-success mt-3" @onclick="GoToQuiz">Access Quiz</button>
 
 @code {
-    private List<Instructor> instructors = new();  // Initialize to an empty list
-
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        // Safely load data and handle possible issues
-        try
+        // Redirect immediately if not logged in
+        if (UserSession.LoggedInStudent is null)
         {
-            instructors = await DbContext.Instructors.ToListAsync() ?? new List<Instructor>(); // If null, initialize to an empty list
-        }
-        catch (Exception ex)
-        {
-            // Log or handle the exception as needed
-            Console.WriteLine($"Error loading instructors: {ex.Message}");
-            instructors = new List<Instructor>(); // Fall back to an empty list if there's an error
+            Navigation.NavigateTo("/", true); // full reload
+            return;
         }
     }
-}
 
+    private void GoToQuiz()
+    {
+        Navigation.NavigateTo("/quiz");
+    }
+}

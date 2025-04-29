@@ -1,4 +1,7 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@rendermode InteractiveServer
+
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">BlazorDesktop</a>
     </div>
@@ -9,28 +12,24 @@
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+            <NavLink class="nav-link" href="Home" Match="NavLinkMatch.All">
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="Importcsv">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Import csv file
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
 
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="StudentList">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Student List
-            </NavLink>
+        <div class="nav-item px-3 mt-4">
+            <button class="btn btn-danger w-100" @onclick="Logout">Logout</button>
         </div>
-
     </nav>
 </div>
+@code {
+    [Inject] private NavigationManager Navigation { get; set; }
+    [Inject] private UserSessionService UserSession { get; set; }
 
+    private void Logout()
+    {
+        UserSession.LoggedInStudent = null;
+        Navigation.NavigateTo("/", true); // full reload
+    }
+}
