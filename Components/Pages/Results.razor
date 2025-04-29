@@ -1,0 +1,162 @@
+@page "/results"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext Context
+@inject NavigationManager NavigationManager
+
+@code {
+    private Dictionary<int, int> userAnswers = new();
+    private List<QuizQuestion> questions;
+    private int score = 0;
+    private bool resultsCalculated = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get all questions from the database
+        questions = await Context.QuizQuestions.ToListAsync();
+    }
+
+    protected override void OnParametersSet()
+    {
+        var uri = NavigationManager.Uri;
+        if (uri.Contains("?"))
+        {
+            var queryString = uri.Split('?')[1];
+            var parameters = queryString.Split('&');
+            
+            foreach (var param in parameters)
+            {
+                var keyValue = param.Split('=');
+                if (keyValue.Length == 2 && keyValue[0].StartsWith("q"))
+                {
+                    var questionId = int.Parse(keyValue[0].Substring(1));
+                    var answer = int.Parse(keyValue[1]);
+                    userAnswers[questionId] = answer;
+                }
+            }
+
+            CalculateResults();
+        }
+    }
+
+    private void CalculateResults()
+    {
+        if (questions == null || !userAnswers.Any()) return;
+
+        foreach (var question in questions)
+        {
+            if (userAnswers.ContainsKey(question.QuestionId) && 
+                userAnswers[question.QuestionId] == question.CorrectAns)
+            {
+                score++;
+            }
+        }
+        resultsCalculated = true;
+    }
+
+    private void RetakeQuiz()
+    {
+        NavigationManager.NavigateTo("/quiz");
+    }
+}
+
+<PageTitle>Quiz Results</PageTitle>
+
+<div class="results-container">
+    <h1>Quiz Results</h1>
+
+    @if (resultsCalculated)
+    {
+        <div class="score-summary">
+            <h2>Your Score: @score out of @questions.Count</h2>
+            <p>Percentage: @((score * 100.0 / questions.Count).ToString("F1"))%</p>
+        </div>
+
+        <div class="detailed-results">
+            <h3>Detailed Results:</h3>
+            @foreach (var question in questions)
+            {
+                var userAnswer = userAnswers.ContainsKey(question.QuestionId) ? userAnswers[question.QuestionId] : 0;
+                var isCorrect = userAnswer == question.CorrectAns;
+                
+                <div class="question-result @(isCorrect ? "correct" : "incorrect")">
+                    <p><strong>Question:</strong> @question.QuestionText</p>
+                    <p><strong>Your Answer:</strong> 
+                        @(userAnswer switch
+                        {
+                            1 => question.OptionA,
+                            2 => question.OptionB,
+                            3 => question.OptionC,
+                            4 => question.OptionD,
+                            _ => "No answer"
+                        })
+                    </p>
+                    @if (!isCorrect)
+                    {
+                        <p><strong>Correct Answer:</strong> 
+                            @(question.CorrectAns switch
+                            {
+                                1 => question.OptionA,
+                                2 => question.OptionB,
+                                3 => question.OptionC,
+                                4 => question.OptionD,
+                                _ => "Unknown"
+                            })
+                        </p>
+                    }
+                </div>
+            }
+        </div>
+
+        <button class="retake-button" @onclick="RetakeQuiz">Retake Quiz</button>
+    }
+    else
+    {
+        <p>Calculating results...</p>
+    }
+</div>
+
+<style>
+    .results-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .score-summary {
+        background-color: #f5f5f5;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+
+    .question-result {
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+    }
+
+    .correct {
+        background-color: #e8f5e9;
+        border: 1px solid #a5d6a7;
+    }
+
+    .incorrect {
+        background-color: #ffebee;
+        border: 1px solid #ffcdd2;
+    }
+
+    .retake-button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #1976d2;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .retake-button:hover {
+        background-color: #1565c0;
+    }
+</style> 

@@ -4,13 +4,15 @@ using System.ComponentModel.DataAnnotations;
 public class QuizQuestion
 {
     [Key] // Marks this property as the primary key
-    public int Id { get; set; } // Primary Key, non-nullable by default in EF Core
+    public int QuestionId { get; set; } // Primary Key, non-nullable by default in EF Core
+    
+    public int QuizbankId { get; set; }  // Added to match DB
     
     [Required] // Ensures QuestionText cannot be null
     public string QuestionText { get; set; } // Non-nullable question text
     
     [Required] // Ensures CorrectAnswer cannot be null
-    public int CorrectAnswer { get; set; } // Stores the index or ID of the correct answer
+    public int CorrectAns { get; set; } // Stores the index or ID of the correct answer
     
     [Required] // Ensures OptionA cannot be null
     [StringLength(255)] // Maximum length of 255 characters for OptionA
