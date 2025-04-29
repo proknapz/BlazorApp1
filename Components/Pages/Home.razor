@@ -1,35 +1,25 @@
-﻿@page "/"
-@inject HttpClient Http
+﻿@page "/home"
+@rendermode InteractiveServer
+@inject UserSessionService UserSession
 @inject NavigationManager Navigation
-
-<PageTitle>Home</PageTitle>
-
-<h1>Hello, world!</h1>
-
-<p>Welcome to your new app.</p>
-
-<form action="/Quiz" method="get">
-    <label for="utdId">UTD ID:</label>
-    <input type="text" id="utdId" name="utdId" maxlength="10" required>
-    <br>
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required>
-    <br>
-    <button type="submit">Submit</button>
-</form>
-
-<!-- Link to the teacher page -->
-
-
-<!-- Display the IP address -->
-<p>Your Public IP Address: @ipAddress</p>
+@inject HttpClient Http
 
 @code {
     private string ipAddress = "Loading...";
+    private string studentFirstName = "Student";
 
     protected override async Task OnInitializedAsync()
     {
-        // Make an API call to an external service to get the public IP address
+        if (UserSession.LoggedInStudent is null)
+        {
+            Navigation.NavigateTo("/", true); // Kick back to login if not logged in
+            return;
+        }
+
+        // If logged in, greet student
+        studentFirstName = UserSession.LoggedInStudent.FirstName;
+
+        // Fetch IP address
         try
         {
             ipAddress = await Http.GetStringAsync("https://api.ipify.org");
@@ -39,6 +29,19 @@
             ipAddress = "Unable to fetch IP";
         }
     }
+
+    private void GoToQuiz()
+    {
+        Navigation.NavigateTo("/quiz");
+    }
 }
 
+<PageTitle>Home</PageTitle>
 
+<h1>Welcome, @studentFirstName!</h1>
+
+<p>Welcome to your new app.</p>
+
+<button class="btn btn-success mt-3" @onclick="GoToQuiz">Access Quiz</button>
+
+<p>Your Public IP Address: @ipAddress</p>
