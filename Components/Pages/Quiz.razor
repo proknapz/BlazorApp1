@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.WebUtilities
 @inject ApplicationDbContext Context
 @inject NavigationManager NavigationManager
+@inject UserSessionService UserSession  
 
 <PageTitle>Attendance Quiz</PageTitle>
 
@@ -51,6 +52,13 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        // 🚨 ADD THIS:
+        if (UserSession.LoggedInStudent is null)
+        {
+            NavigationManager.NavigateTo("/", true);
+            return;
+        }
+
         questions = await Context.QuizQuestions.ToListAsync();
     }
 
@@ -83,7 +91,6 @@ else
             errorMessage = "An unexpected error occurred: " + ex.Message;
         }
     }
-
 
     private void HandleAnswerSelection(ChangeEventArgs e, string questionId)
     {

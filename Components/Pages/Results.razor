@@ -23,7 +23,7 @@
         {
             var queryString = uri.Split('?')[1];
             var parameters = queryString.Split('&');
-            
+
             foreach (var param in parameters)
             {
                 var keyValue = param.Split('=');
@@ -45,7 +45,7 @@
 
         foreach (var question in questions)
         {
-            if (userAnswers.ContainsKey(question.QuestionId) && 
+            if (userAnswers.ContainsKey(question.QuestionId) &&
                 userAnswers[question.QuestionId] == question.CorrectAns)
             {
                 score++;
@@ -78,10 +78,11 @@
             {
                 var userAnswer = userAnswers.ContainsKey(question.QuestionId) ? userAnswers[question.QuestionId] : 0;
                 var isCorrect = userAnswer == question.CorrectAns;
-                
+
                 <div class="question-result @(isCorrect ? "correct" : "incorrect")">
                     <p><strong>Question:</strong> @question.QuestionText</p>
-                    <p><strong>Your Answer:</strong> 
+                    <p>
+                        <strong>Your Answer:</strong>
                         @(userAnswer switch
                         {
                             1 => question.OptionA,
@@ -93,7 +94,8 @@
                     </p>
                     @if (!isCorrect)
                     {
-                        <p><strong>Correct Answer:</strong> 
+                        <p>
+                            <strong>Correct Answer:</strong>
                             @(question.CorrectAns switch
                             {
                                 1 => question.OptionA,
@@ -156,7 +158,7 @@
         cursor: pointer;
     }
 
-    .retake-button:hover {
-        background-color: #1565c0;
-    }
+        .retake-button:hover {
+            background-color: #1565c0;
+        }
 </style> 
