@@ -1,6 +1,7 @@
 ﻿@page "/login"
 @rendermode InteractiveServer
 @inject NavigationManager Navigation
+@inject HttpClient Http
 @inject ApplicationDbContext Db
 @using Microsoft.EntityFrameworkCore
 
@@ -21,7 +22,7 @@
 {
     <p class="text-danger">@errorMessage</p>
 }
-
+<p>Your Public IP Address: @ipAddress</p>
 @code {
     private LoginModel loginModel = new();
     private string errorMessage;
@@ -33,7 +34,8 @@
 
         if (user is not null)
         {
-            Navigation.NavigateTo("/quiz");
+            Navigation.NavigateTo($"/quiz?utdId={loginModel.UtdId}&password={loginModel.Password}");
+
         }
         else
         {
@@ -45,5 +47,23 @@
     {
         public string UtdId { get; set; }
         public string Password { get; set; }
+    }
+}
+
+
+@code {
+    private string ipAddress = "Loading...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Make an API call to an external service to get the public IP address
+        try
+        {
+            ipAddress = await Http.GetStringAsync("https://api.ipify.org");
+        }
+        catch
+        {
+            ipAddress = "Unable to fetch IP";
+        }
     }
 }

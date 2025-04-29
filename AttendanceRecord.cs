@@ -1,24 +1,20 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-
+using System.ComponentModel.DataAnnotations.Schema;
+[Table("attendancerecord")]
 public class AttendanceRecord
 {
-    [Key] // Marks this property as the primary key
-    public int Id { get; set; } // Primary key, non-nullable by default in EF Core
+    [Key]
+    public int AttendanceId { get; set; }  // Primary Key, Auto-incremented
+    public int StudentID { get; set; }     // Foreign Key to the Student table
+    public int ClassId { get; set; }       // Foreign Key to the Class table
+    public TimeSpan ArrivalTime { get; set; } // Timestamp for the arrival time
+    public bool IsPresent { get; set; }    // Indicates if the student was present (tinyint(1))
+    public bool IsExcused { get; set; }    // Indicates if the absence was excused (tinyint(1))
+    public DateTime ClassDate { get; set; } // Date of the class
+    public string CurrentIP { get; set; }  // IP address of the student
 
-    [Required] // Ensures ArrivalTime cannot be null
-    public DateTime ArrivalTime { get; set; } // Stores the time the student arrived in class
+    [ForeignKey("StudentId")]
+    public Student Student { get; set; }
 
-    [Required] // Ensures IsPresent cannot be null
-    public bool IsPresent { get; set; } // Indicates if the student is present
-
-    [Required] // Ensures IsExcused cannot be null
-    public bool IsExcused { get; set; } // Indicates if an absence is excused
-
-    [Required] // Ensures ClassDate cannot be null
-    public DateTime ClassDate { get; set; } // Stores the date of the class session
-
-    [Required] // Ensures CurrentIp cannot be null
-    [StringLength(200)] // Limits the maximum length to 200 characters
-    public string CurrentIp { get; set; } // Stores the IP address associated with the student during class
 }

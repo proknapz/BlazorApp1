@@ -1,27 +1,95 @@
 ﻿@page "/Quiz"
-@code {
-    // Written by Omar Khan for CS4485.001, starting March 21, 2025.
-    // NetID: OLK200000
-    // Mutiple Choice Quiz 3/21/2025
-}
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.WebUtilities
+@inject ApplicationDbContext Context
+@inject NavigationManager NavigationManager
+
 <PageTitle>Attendance Quiz</PageTitle>
 
 <h1>Attendance Quiz</h1>
 
 <h3>Component</h3>
 
-<form action="/results" method="post">
-    <p>1. What is the capital of France?</p>
-    <input type="radio" id="paris" name="q1" value="paris" required>
-    <label for="paris">Paris</label><br>
-    <input type="radio" id="london" name="q1" value="london">
-    <label for="london">London</label><br>
-    <input type="radio" id="rome" name="q1" value="rome">
-    <label for="rome">Rome</label><br>
-    <input type="radio" id="berlin" name="q1" value="berlin">
-    <label for="berlin">Berlin</label><br>
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+else if (questions == null)
+{
+    <p>Loading questions...</p>
+}
+else
+{
+    <form @onsubmit="HandleSubmitAsync">
+        @foreach (var question in questions)
+        {
+            <div class="question-container">
+                <p>@question.QuestionText</p>
 
-    <button type="submit">Submit</button>
-</form>
+                <input type="radio" id="@($"q{question.QuestionId}_a")" name="@($"q{question.QuestionId}")" value="1" @onchange="e => HandleAnswerSelection(e, question.QuestionId.ToString())" required>
+                <label for="@($"q{question.QuestionId}_a")">@question.OptionA</label><br>
+
+                <input type="radio" id="@($"q{question.QuestionId}_b")" name="@($"q{question.QuestionId}")" value="2" @onchange="e => HandleAnswerSelection(e, question.QuestionId.ToString())">
+                <label for="@($"q{question.QuestionId}_b")">@question.OptionB</label><br>
+
+                <input type="radio" id="@($"q{question.QuestionId}_c")" name="@($"q{question.QuestionId}")" value="3" @onchange="e => HandleAnswerSelection(e, question.QuestionId.ToString())">
+                <label for="@($"q{question.QuestionId}_c")">@question.OptionC</label><br>
+
+                <input type="radio" id="@($"q{question.QuestionId}_d")" name="@($"q{question.QuestionId}")" value="4" @onchange="e => HandleAnswerSelection(e, question.QuestionId.ToString())">
+                <label for="@($"q{question.QuestionId}_d")">@question.OptionD</label><br>
+            </div>
+        }
+        <button type="submit">Submit</button>
+    </form>
+}
+
+@code {
+    private List<QuizQuestion> questions;
+    private Dictionary<string, string> answers = new();
+    private string errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        questions = await Context.QuizQuestions.ToListAsync();
+    }
+
+    private async Task HandleSubmitAsync()
+    {
+        try
+        {
+            foreach (var entry in answers)
+            {
+                var response = new QuizResponse
+                {
+                    AttendanceId = 101, // Dummy
+                    SessionId = 1,    // Dummy
+                    SelectedAnswer = entry.Value
+                };
+                Context.QuizResponses.Add(response);
+            }
+
+            await Context.SaveChangesAsync();
+
+            var queryParams = string.Join("&", answers.Select(a => $"q{a.Key}={a.Value}"));
+            NavigationManager.NavigateTo($"/results?{queryParams}");
+        }
+        catch (DbUpdateException ex)
+        {
+            errorMessage = "Database error: " + ex.InnerException?.Message ?? ex.Message;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "An unexpected error occurred: " + ex.Message;
+        }
+    }
 
 
+    private void HandleAnswerSelection(ChangeEventArgs e, string questionId)
+    {
+        if (e.Value != null)
+        {
+            answers[questionId] = e.Value.ToString();
+        }
+    }
+}
