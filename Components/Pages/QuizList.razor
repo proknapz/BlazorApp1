@@ -1,0 +1,59 @@
+﻿@page "/QuizList"
+@inject ApplicationDbContext DbContext
+@using Microsoft.EntityFrameworkCore
+
+<h3>Quiz Session List</h3>
+
+@if (quizSessions != null && quizSessions.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Session ID</th>
+                <th>Class ID</th>
+                <th>Quizbank ID</th>
+                <th>Session Date</th>
+                <th>Is Active</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Password</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var session in quizSessions)
+            {
+                <tr>
+                    <td>@session.SessionId</td>
+                    <td>@session.ClassId</td>
+                    <td>@session.QuizbankId</td>
+                    <td>@session.SessionDate.ToString("yyyy-MM-dd")</td>
+                    <td>@session.IsActive</td>
+                    <td>@session.StartTime.ToString("HH:mm:ss")</td>
+                    <td>@session.EndTime.ToString("HH:mm:ss")</td>
+                    <td>@session.Password</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No quiz sessions available.</p>
+}
+
+@code {
+    private List<QuizSession> quizSessions = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            quizSessions = await DbContext.QuizSessions.ToListAsync() ?? new List<QuizSession>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading quiz sessions: {ex.Message}");
+            quizSessions = new List<QuizSession>();
+        }
+    }
+}

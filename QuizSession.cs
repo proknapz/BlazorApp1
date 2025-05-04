@@ -1,20 +1,31 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
+[Table("quizsession")]
 public class QuizSession
 {
-    [Key] // Marks this property as the primary key
-    public int Id { get; set; } // Primary Key, non-nullable by default in EF Core
+    [Key]
+    public int SessionId { get; set; }
 
-    [Required] // Ensures SessionDate cannot be null
-    public DateTime SessionDate { get; set; } // Stores the date and time of the session
-    
-    [Required] // Ensures IsActive cannot be null
-    public bool IsActive { get; set; } // Indicates whether the session is active
+    [Required]
+    public int ClassId { get; set; }
 
-    [Required] // Ensures StartTime cannot be null
-    public DateTime StartTime { get; set; } // Stores the session's start time
-    
-    [Required] // Ensures EndTime cannot be null
-    public DateTime EndTime { get; set; } // Stores the session's end time
+    [Required]
+    public int QuizbankId { get; set; }
+
+    [Required]
+    public DateTime SessionDate { get; set; }
+
+    [Required]
+    public bool IsActive { get; set; }
+
+    [Required]
+    public TimeOnly StartTime { get; set; }
+
+    [Required]
+    public TimeOnly EndTime { get; set; }
+
+    [Required]
+    public string Password { get; set; }
 }

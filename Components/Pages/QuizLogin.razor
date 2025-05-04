@@ -1,0 +1,78 @@
+﻿@page "/quizlogin"
+@rendermode InteractiveServer
+@inject ApplicationDbContext Db
+@inject NavigationManager Navigation
+@inject UserSessionService UserSession
+@inject HttpClient Http
+@using Microsoft.EntityFrameworkCore
+
+<h3>Quiz Login</h3>
+
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p class="text-danger">@errorMessage</p>
+}
+
+<div class="mb-3">
+    <label for="quizPassword" class="form-label">Enter Quiz Password</label>
+    <input type="password" @bind="quizPassword" class="form-control" />
+</div>
+
+<button class="btn btn-success" @onclick="HandleQuizLogin">Enter Quiz</button>
+
+<p>Your Public IP Address: @ipAddress</p>
+
+@code {
+    private string quizPassword;
+    private string errorMessage;
+    private string ipAddress;
+
+    protected override void OnInitialized()
+    {
+        // Prevent access if not logged in
+        if (UserSession.LoggedInStudent is null)
+        {
+            Navigation.NavigateTo("/", true);
+        }
+    }
+
+    private async Task HandleQuizLogin()
+    {
+        errorMessage = string.Empty;
+        var trimmedInput = quizPassword?.Trim().ToLower();
+
+        var allSessions = await Db.QuizSessions.ToListAsync();
+        var matchingSession = allSessions.FirstOrDefault(s =>
+            s.Password.Trim().ToLower() == trimmedInput);
+
+        if (matchingSession != null)
+        {
+            Console.WriteLine($"Matched session ID: {matchingSession.SessionId}");
+
+            // Allow access to /quiz
+            UserSession.HasQuizAccess = true;
+
+            Navigation.NavigateTo("/quiz", forceLoad: true);
+        }
+        else
+        {
+            errorMessage = "Incorrect quiz password.";
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            ipAddress = await Http.GetStringAsync("https://api.ipify.org");
+        }
+        catch
+        {
+            ipAddress = "Unable to fetch IP";
+        }
+    }
+
+}
+
+
