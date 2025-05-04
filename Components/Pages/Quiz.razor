@@ -1,16 +1,13 @@
-﻿@page "/Quiz"
+﻿@page "/quiz"
 @rendermode InteractiveServer
 @using Microsoft.EntityFrameworkCore
-@using Microsoft.AspNetCore.WebUtilities
 @inject ApplicationDbContext Context
 @inject NavigationManager NavigationManager
-@inject UserSessionService UserSession  
+@inject UserSessionService UserSession
 
 <PageTitle>Attendance Quiz</PageTitle>
 
 <h1>Attendance Quiz</h1>
-
-<h3>Component</h3>
 
 @if (errorMessage != null)
 {
@@ -52,15 +49,21 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        // 🚨 ADD THIS:
         if (UserSession.LoggedInStudent is null)
         {
-            NavigationManager.NavigateTo("/", true);
+            NavigationManager.NavigateTo("/", true); // Not logged in → go to login
+            return;
+        }
+
+        if (!UserSession.HasQuizAccess)
+        {
+            NavigationManager.NavigateTo("/home", true); // Logged in but bypassed → go to home
             return;
         }
 
         questions = await Context.QuizQuestions.ToListAsync();
     }
+
 
     private async Task HandleSubmitAsync()
     {
@@ -69,15 +72,18 @@ else
             foreach (var entry in answers)
             {
                 var response = new QuizResponse
-                {
-                    AttendanceId = 101, // Dummy
-                    SessionId = 1,    // Dummy
-                    SelectedAnswer = entry.Value
-                };
+                    {
+                        AttendanceId = 101, // Replace with actual logic
+                        SessionId = 1,      // Replace with actual session
+                        SelectedAnswer = entry.Value
+                    };
                 Context.QuizResponses.Add(response);
             }
 
             await Context.SaveChangesAsync();
+
+            // Revoke access after submission
+            UserSession.HasQuizAccess = false;
 
             var queryParams = string.Join("&", answers.Select(a => $"q{a.Key}={a.Value}"));
             NavigationManager.NavigateTo($"/results?{queryParams}");

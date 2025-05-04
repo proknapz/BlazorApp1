@@ -20,7 +20,7 @@ public class ApplicationDbContext : DbContext
     //public DbSet<QuizResponse> Attendances { get; set; }
     //public DbSet<QuizBank> QuizBanks { get; set; }
     public DbSet<QuizQuestion> QuizQuestions { get; set; }
-    //public DbSet<QuizSession> QuizSessions { get; set; }
+    public DbSet<QuizSession> QuizSessions { get; set; }
     //public DbSet<Configuration> Configurations { get; set; }
     public DbSet<Course> Courses { get; set; }
 
