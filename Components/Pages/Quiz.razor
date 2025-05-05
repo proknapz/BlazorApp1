@@ -4,6 +4,7 @@
 @inject ApplicationDbContext Context
 @inject NavigationManager NavigationManager
 @inject UserSessionService UserSession
+@inject HttpClient Http
 
 <PageTitle>Attendance Quiz</PageTitle>
 
@@ -64,27 +65,51 @@ else
         questions = await Context.QuizQuestions.ToListAsync();
     }
 
-
+    
     private async Task HandleSubmitAsync()
     {
         try
         {
+            // Save quiz answers
+            /*
             foreach (var entry in answers)
             {
                 var response = new QuizResponse
                     {
-                        AttendanceId = 101, // Replace with actual logic
-                        SessionId = 1,      // Replace with actual session
+                        AttendanceId = 101, // optional: only if linking to attendance
+                        SessionId = 1,      // replace with actual session ID
                         SelectedAnswer = entry.Value
                     };
                 Context.QuizResponses.Add(response);
             }
+            */
 
+            // Record attendance
+            var studentId = UserSession.LoggedInStudent.StudentId;
+            var studentIp = await Http.GetStringAsync("https://api.ipify.org");
+            var classId = UserSession.LoggedInStudent.ClassId;
+            var now = DateTime.Now;
+
+            var attendance = new AttendanceRecord
+                {
+                    StudentID = studentId,
+                    ClassId = classId,
+                    ArrivalTime = now.TimeOfDay,
+                    IsPresent = true,
+                    IsExcused = false,
+                    ClassDate = now.Date,
+                    CurrentIP = studentIp
+                };
+
+            Context.AttendanceRecords.Add(attendance);
+
+            // Save both attendance + quiz
             await Context.SaveChangesAsync();
 
             // Revoke access after submission
             UserSession.HasQuizAccess = false;
 
+            // Redirect to results with answers
             var queryParams = string.Join("&", answers.Select(a => $"q{a.Key}={a.Value}"));
             NavigationManager.NavigateTo($"/results?{queryParams}");
         }
@@ -97,6 +122,9 @@ else
             errorMessage = "An unexpected error occurred: " + ex.Message;
         }
     }
+
+    
+
 
     private void HandleAnswerSelection(ChangeEventArgs e, string questionId)
     {

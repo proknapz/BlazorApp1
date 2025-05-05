@@ -1,8 +1,9 @@
-@page "/results"
+﻿@page "/results"
 @rendermode InteractiveServer
 @using Microsoft.EntityFrameworkCore
 @inject ApplicationDbContext Context
 @inject NavigationManager NavigationManager
+@inject UserSessionService UserSession
 
 @code {
     private Dictionary<int, int> userAnswers = new();
@@ -12,7 +13,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Get all questions from the database
         questions = await Context.QuizQuestions.ToListAsync();
     }
 
@@ -54,15 +54,26 @@
         resultsCalculated = true;
     }
 
-    private void RetakeQuiz()
+    private void GoHome()
     {
-        NavigationManager.NavigateTo("/quiz");
+        NavigationManager.NavigateTo("/home");
     }
+
+    private void LogOut()
+    {
+        UserSession.Clear();
+        NavigationManager.NavigateTo("/", true);
+    }
+
 }
 
 <PageTitle>Quiz Results</PageTitle>
 
 <div class="results-container">
+    <div class="top-buttons">
+        <button class="btn btn-danger logout-button" @onclick="LogOut">Log Out</button>
+    </div>
+
     <h1>Quiz Results</h1>
 
     @if (resultsCalculated)
@@ -110,7 +121,7 @@
             }
         </div>
 
-        <button class="retake-button" @onclick="RetakeQuiz">Retake Quiz</button>
+        <button class="home-button" @onclick="GoHome">Home</button>
     }
     else
     {
@@ -123,6 +134,26 @@
         max-width: 800px;
         margin: 0 auto;
         padding: 20px;
+        position: relative;
+    }
+
+    .top-buttons {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 10px;
+    }
+
+    .logout-button {
+        background-color: #d32f2f;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .logout-button:hover {
+        background-color: #b71c1c;
     }
 
     .score-summary {
@@ -148,7 +179,7 @@
         border: 1px solid #ffcdd2;
     }
 
-    .retake-button {
+    .home-button {
         margin-top: 20px;
         padding: 10px 20px;
         background-color: #1976d2;
@@ -158,7 +189,7 @@
         cursor: pointer;
     }
 
-        .retake-button:hover {
-            background-color: #1565c0;
-        }
-</style> 
+    .home-button:hover {
+        background-color: #1565c0;
+    }
+</style>
