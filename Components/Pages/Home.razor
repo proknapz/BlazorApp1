@@ -1,18 +1,20 @@
-﻿@page "/home"
+﻿@* written by conan starting 4/16/2025 CS 4485 *@
+@page "/home"
 @rendermode InteractiveServer
 @inject UserSessionService UserSession
 @inject NavigationManager Navigation
 @inject HttpClient Http
-
+@*login page for students*@
 @code {
+    
     private string ipAddress = "Loading...";
     private string studentFirstName = "Student";
-
+    
     protected override async Task OnInitializedAsync()
     {
         if (UserSession.LoggedInStudent is null)
         {
-            Navigation.NavigateTo("/", true); // Kick back to login if not logged in
+            Navigation.NavigateTo("/", true); 
             return;
         }
 

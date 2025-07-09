@@ -1,4 +1,5 @@
-﻿@page "/QuizList"
+﻿@*written by conan starting 4/15/2025 CS 4485 *@
+@page "/QuizList"
 @inject ApplicationDbContext DbContext
 @using Microsoft.EntityFrameworkCore
 
@@ -42,8 +43,10 @@ else
 }
 
 @code {
+    @* holds the list of quiz sessions to be displayed *@
     private List<QuizSession> quizSessions = new();
 
+    @* loads quiz sessions from the database on component initialization *@
     protected override async Task OnInitializedAsync()
     {
         try

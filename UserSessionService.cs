@@ -1,8 +1,8 @@
-﻿public class UserSessionService
+﻿//written by conan starting 4/16/2025 CS 4485
+public class UserSessionService
 {
     public Student LoggedInStudent { get; set; }
 
-    // ✅ This flag controls access to /quiz
     public bool HasQuizAccess { get; set; } = false;
 
     public void Clear()

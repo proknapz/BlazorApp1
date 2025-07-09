@@ -1,4 +1,5 @@
-﻿@page "/results"
+﻿@*written by omar starting 4/29/2025 CS 4485 *@
+@page "/results"
 @rendermode InteractiveServer
 @using Microsoft.EntityFrameworkCore
 @inject ApplicationDbContext Context
@@ -11,11 +12,13 @@
     private int score = 0;
     private bool resultsCalculated = false;
 
+    @* fetch all quiz questions from the database *@
     protected override async Task OnInitializedAsync()
     {
         questions = await Context.QuizQuestions.ToListAsync();
     }
 
+    @* extract user's answers from the query string and calculate results *@
     protected override void OnParametersSet()
     {
         var uri = NavigationManager.Uri;
@@ -39,6 +42,7 @@
         }
     }
 
+    @* compares user's answers with correct ones and updates score *@
     private void CalculateResults()
     {
         if (questions == null || !userAnswers.Any()) return;
@@ -54,17 +58,18 @@
         resultsCalculated = true;
     }
 
+    @* navigates back to home page *@
     private void GoHome()
     {
         NavigationManager.NavigateTo("/home");
     }
 
+    @* clears user session and logs out *@
     private void LogOut()
     {
         UserSession.Clear();
         NavigationManager.NavigateTo("/", true);
     }
-
 }
 
 <PageTitle>Quiz Results</PageTitle>
@@ -152,9 +157,9 @@
         cursor: pointer;
     }
 
-    .logout-button:hover {
-        background-color: #b71c1c;
-    }
+        .logout-button:hover {
+            background-color: #b71c1c;
+        }
 
     .score-summary {
         background-color: #f5f5f5;
@@ -189,7 +194,7 @@
         cursor: pointer;
     }
 
-    .home-button:hover {
-        background-color: #1565c0;
-    }
+        .home-button:hover {
+            background-color: #1565c0;
+        }
 </style>

@@ -1,4 +1,5 @@
-﻿@page "/quizlogin"
+﻿@*written by conan starting 4/16/2025 CS 4485 *@
+@page "/quizlogin"
 @rendermode InteractiveServer
 @inject ApplicationDbContext Db
 @inject NavigationManager Navigation
@@ -7,7 +8,6 @@
 @using Microsoft.EntityFrameworkCore
 
 <h3>Quiz Login</h3>
-
 
 @if (!string.IsNullOrEmpty(errorMessage))
 {
@@ -28,39 +28,46 @@
     private string errorMessage;
     private string ipAddress;
 
+    @* redirect to home if user is not logged in *@
     protected override void OnInitialized()
     {
-        // Prevent access if not logged in
         if (UserSession.LoggedInStudent is null)
         {
             Navigation.NavigateTo("/", true);
         }
     }
 
+    @* handles password validation granting access to quiz session if matched *@
     private async Task HandleQuizLogin()
     {
-        errorMessage = string.Empty;
-        var trimmedInput = quizPassword?.Trim().ToLower();
-
-        var allSessions = await Db.QuizSessions.ToListAsync();
-        var matchingSession = allSessions.FirstOrDefault(s =>
-            s.Password.Trim().ToLower() == trimmedInput);
-
-        if (matchingSession != null)
+        try
         {
-            Console.WriteLine($"Matched session ID: {matchingSession.SessionId}");
+            errorMessage = string.Empty;
+            var trimmedInput = quizPassword?.Trim().ToLower();
 
-            // Allow access to /quiz
-            UserSession.HasQuizAccess = true;
+            var allSessions = await Db.QuizSessions.ToListAsync();
+            var matchingSession = allSessions.FirstOrDefault(s =>
+                (s.Password ?? "").Trim().ToLower() == trimmedInput);
 
-            Navigation.NavigateTo("/quiz", forceLoad: true);
+            if (matchingSession != null)
+            {
+                Console.WriteLine($"Matched session ID: {matchingSession.SessionId}");
+                UserSession.HasQuizAccess = true;
+                Navigation.NavigateTo("/quiz", forceLoad: true);
+            }
+            else
+            {
+                errorMessage = "Incorrect quiz password.";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            errorMessage = "Incorrect quiz password.";
+            errorMessage = "An error occurred: " + ex.Message;
+            Console.Error.WriteLine(ex);
         }
     }
 
+    @* fetches + display user public ip address *@
     protected override async Task OnInitializedAsync()
     {
         try
@@ -72,7 +79,4 @@
             ipAddress = "Unable to fetch IP";
         }
     }
-
 }
-
-

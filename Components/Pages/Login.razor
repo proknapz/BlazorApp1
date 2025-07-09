@@ -1,9 +1,12 @@
-﻿@page "/"
+﻿@* written by conan starting 4/16/2025 CS 4485 *@
+@page "/"
 @rendermode InteractiveServer
+
 @inject NavigationManager Navigation
 @inject HttpClient Http
 @inject ApplicationDbContext Db
 @inject UserSessionService UserSession
+
 @using Microsoft.EntityFrameworkCore
 
 <h3>Login</h3>
@@ -24,24 +27,34 @@
 
 @code {
     private LoginModel loginModel = new();
+
     private string errorMessage;
     private string ipAddress = "Loading...";
 
+    @* handles login logic *@
     private async Task HandleLogin()
     {
-        var user = await Db.Students.FirstOrDefaultAsync(s => s.UtdId == loginModel.UtdId);
+        try
+        {
+            var user = await Db.Students.FirstOrDefaultAsync(s => s.UtdId == loginModel.UtdId);
 
-        if (user is not null)
-        {
-            UserSession.LoggedInStudent = user;  // Save student info in session
-            Navigation.NavigateTo("/home", true); // Go to /home CLEAN URL
+            if (user is not null)
+            {
+                UserSession.LoggedInStudent = user;
+                Navigation.NavigateTo("/home", true);
+            }
+            else
+            {
+                errorMessage = "Invalid UTD ID.";
+            }
         }
-        else
+        catch
         {
-            errorMessage = "Invalid UTD ID.";
+            errorMessage = "An error occurred. Please try again.";
         }
     }
 
+    @* fetches public ip address on page intialization *@
     protected override async Task OnInitializedAsync()
     {
         try
@@ -54,6 +67,7 @@
         }
     }
 
+    @* login input model *@
     public class LoginModel
     {
         public string UtdId { get; set; }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿//written by conan starting 4/16/2025 CS 4485
+
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 [Table("attendancerecord")]
@@ -15,6 +17,6 @@ public class AttendanceRecord
     public DateTime ClassDate { get; set; }
     public string CurrentIP { get; set; }
 
-    public Student Student { get; set; }  // ✅ no ForeignKey attribute needed
+    public Student Student { get; set; }  
 
 }

@@ -1,4 +1,5 @@
-﻿@page "/quiz"
+﻿@*written by omar starting 4/29/2025 CS 4485 *@
+@page "/quiz"
 @rendermode InteractiveServer
 @using Microsoft.EntityFrameworkCore
 @inject ApplicationDbContext Context
@@ -52,37 +53,41 @@ else
     {
         if (UserSession.LoggedInStudent is null)
         {
-            NavigationManager.NavigateTo("/", true); // Not logged in → go to login
+            NavigationManager.NavigateTo("/", true);
             return;
         }
 
         if (!UserSession.HasQuizAccess)
         {
-            NavigationManager.NavigateTo("/home", true); // Logged in but bypassed → go to home
+            NavigationManager.NavigateTo("/home", true);
             return;
         }
 
-        questions = await Context.QuizQuestions.ToListAsync();
+        var studentClassId = UserSession.LoggedInStudent.ClassId;
+
+        // Get the active quiz session for this class
+        var quizSession = await Context.QuizSessions
+            .Where(q => q.ClassId == studentClassId && q.IsActive == true)
+            .FirstOrDefaultAsync();
+
+        if (quizSession == null)
+        {
+            errorMessage = "No active quiz session found for your class.";
+            return;
+        }
+
+        // Load questions from the corresponding quizbank
+        questions = await Context.QuizQuestions
+            .Where(q => q.QuizbankId == quizSession.QuizbankId)
+            .ToListAsync();
     }
+
 
     
     private async Task HandleSubmitAsync()
     {
         try
         {
-            // Save quiz answers
-            /*
-            foreach (var entry in answers)
-            {
-                var response = new QuizResponse
-                    {
-                        AttendanceId = 101, // optional: only if linking to attendance
-                        SessionId = 1,      // replace with actual session ID
-                        SelectedAnswer = entry.Value
-                    };
-                Context.QuizResponses.Add(response);
-            }
-            */
 
             // Record attendance
             var studentId = UserSession.LoggedInStudent.StudentId;
@@ -106,10 +111,10 @@ else
             // Save both attendance + quiz
             await Context.SaveChangesAsync();
 
-            // Revoke access after submission
+            // Revoke access after submit
             UserSession.HasQuizAccess = false;
 
-            // Redirect to results with answers
+            // Redirect to results
             var queryParams = string.Join("&", answers.Select(a => $"q{a.Key}={a.Value}"));
             NavigationManager.NavigateTo($"/results?{queryParams}");
         }
@@ -125,7 +130,7 @@ else
 
     
 
-
+	@* Handles the answer selection for each question *@
     private void HandleAnswerSelection(ChangeEventArgs e, string questionId)
     {
         if (e.Value != null)

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿//written by conan starting 4/16/2025 CS 4485
+using System.ComponentModel.DataAnnotations;
 
 public class QuizResponse
 {

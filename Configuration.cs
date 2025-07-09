@@ -1,23 +1,25 @@
+//written by conan starting 4/10/2025 CS 4485
+
 using System;
 using System.ComponentModel.DataAnnotations;
 
 public class Configuration
 {
-    [Key] // Marks this property as the primary key
-    public int Id { get; set; } // Primary Key, non-nullable by default in EF Core
+    [Key]
+    public int Id { get; set; }
     
-    [Required] // Ensures DataBaseLocation cannot be null
-    [StringLength(200)] // Limits the maximum length to 200 characters
-    public string DataBaseLocation { get; set; } // Stores the database location path
+    [Required] 
+    [StringLength(200)] 
+    public string DataBaseLocation { get; set; }
     
-    [Required] // Ensures DataBaseName cannot be null
-    [StringLength(200)] // Limits the maximum length to 200 characters
-    public string DataBaseName { get; set; } // Stores the database name
+    [Required]
+    [StringLength(200)] 
+    public string DataBaseName { get; set; } 
     
-    [Required] // Ensures QuizDuration cannot be null
-    public int QuizDuration { get; set; } // Stores the quiz duration in minutes
+    [Required] 
+    public int QuizDuration { get; set; }
     
-    [Required] // Ensures CurrentClassPassword cannot be null
-    [StringLength(200)] // Limits the maximum length to 200 characters
-    public string CurrentClassPassword { get; set; } // Stores the current class password
+    [Required]
+    [StringLength(200)] 
+    public string CurrentClassPassword { get; set; }
 }
